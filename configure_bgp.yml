@@ -46,10 +46,10 @@
           - "    }"
           - "  }"
           - "}"
-        provider:
-          host: "{{ ansible_host }}"
-          user: "{{ ansible_user }}"
-          passwd: "{{ ansible_ssh_pass }}"
-          port: 22
-        commit: no  # This should be specified here if you want to commit
+        commit: yes  # Ensures that the config is committed after application
+      register: bgp_config
+      check_commit: yes  # Check the commit status (optional)
 
+    - name: Show the result of the BGP configuration
+      debug:
+        var: bgp_config
