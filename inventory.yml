@@ -1,23 +1,7 @@
-all:
-  hosts:
-    site10:
-      ansible_host: 192.168.99.10
-      ansible_user: your_ssh_user
-      ansible_ssh_pass: your_ssh_password
-
-    site11:
-      ansible_host: 192.168.99.11
-      ansible_user: your_ssh_user
-      ansible_ssh_pass: your_ssh_password
-      
-    site12:
-      ansible_host: 192.168.99.12
-      ansible_user: your_ssh_user
-      ansible_ssh_pass: your_ssh_password
-
-
-    site70:
-      ansible_host: 192.168.99.70
-      ansible_user: your_ssh_user
-      ansible_ssh_pass: your_ssh_password
-
+site10:
+  ansible_host: 192.168.99.10
+  ansible_user: your_ssh_user
+  ansible_ssh_pass: your_ssh_password
+  ansible_connection: ssh
+  ansible_ssh_port: 22
+  ansible_python_interpreter: /usr/bin/false  # or correct path if needed
