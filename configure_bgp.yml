@@ -1,6 +1,7 @@
 ---
 - name: Configure BGP for Site 10-70 using junipernetworks.junos collection
   hosts: all
+  connection: local
   gather_facts: no  # Skip facts gathering (no Python required)
   become: yes
   vars_prompt:
