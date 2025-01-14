@@ -2,6 +2,7 @@
 - name: Configure BGP for Site 10 using junipernetworks.junos
   hosts: site10
   gather_facts: no
+  connection: local
   become: yes
   vars_prompt:
     - name: "ansible_user"
