@@ -14,7 +14,7 @@
   tasks:
     # Site 10 - Full Mesh Configuration
     - name: Configure BGP for Site 10
-      when: inventory_hostname == 'site10'
+      when: inventory_hostname == '192.168.99.10'
       junipernetworks.junos.junos_config:
         host: "{{ ansible_host }}"
         user: "{{ ansible_user }}"
