@@ -1,10 +1,26 @@
 all:
   hosts:
-    192.168.99.10:
+    site10:
       ansible_host: 192.168.99.10
+      ansible_user: your_ssh_user
+      ansible_ssh_pass: your_ssh_password
+      ansible_python_interpreter: /usr/bin/false  # Use a non-existent interpreter
+
     site11:
       ansible_host: 192.168.99.11
+      ansible_user: your_ssh_user
+      ansible_ssh_pass: your_ssh_password
+      ansible_python_interpreter: /usr/bin/false
+
     site12:
       ansible_host: 192.168.99.12
+      ansible_user: your_ssh_user
+      ansible_ssh_pass: your_ssh_password
+      ansible_python_interpreter: /usr/bin/false
+
     site70:
-      ansible_host: 192.168.70.1
+      ansible_host: 192.168.99.70
+      ansible_user: your_ssh_user
+      ansible_ssh_pass: your_ssh_password
+      ansible_python_interpreter: /usr/bin/false
+
