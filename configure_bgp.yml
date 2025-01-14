@@ -1,0 +1,74 @@
+---
+- name: Configure External BGP Groups for Full Mesh
+  hosts: all
+  gather_facts: no
+  become: yes
+  tasks:
+
+    # Site 10 - Full Mesh Configuration
+    - name: Configure BGP for Site 10
+      when: inventory_hostname == 'site10'
+      juniper_junos_config:
+        host: "{{ ansible_host }}"
+        user: "{{ ansible_user }}"
+        passwd: "{{ ansible_ssh_pass }}"
+        config: |
+          protocols {
+            bgp {
+              group 10.10-cox {
+                type external;
+                local-address 192.168.99.10;
+                neighbor 192.168.99.11 {
+                  peer-as 65011;
+                }
+                neighbor 192.168.99.12 {
+                  peer-as 65012;
+                }
+                neighbor 192.168.99.70 {
+                  peer-as 65070;
+                }
+              }
+              group 10.10-lumen {
+                type external;
+                local-address 192.168.100.10;
+                neighbor 192.168.100.11 {
+                  peer-as 65011;
+                }
+                neighbor 192.168.100.12 {
+                  peer-as 65012;
+                }
+                neighbor 192.168.100.70 {
+                  peer-as 65070;
+                }
+              }
+              group 10.11-cox {
+                type external;
+                local-address 192.168.99.10;
+                neighbor 192.168.99.11 {
+                  peer-as 65011;
+                }
+              }
+              group 10.11-lumen {
+                type external;
+                local-address 192.168.100.10;
+                neighbor 192.168.100.11 {
+                  peer-as 65011;
+                }
+              }
+              group 10.12-cox {
+                type external;
+                local-address 192.168.99.10;
+                neighbor 192.168.99.12 {
+                  peer-as 65012;
+                }
+              }
+              group 10.12-lumen {
+                type external;
+                local-address 192.168.100.10;
+                neighbor 192.168.100.12 {
+                  peer-as 65012;
+                }
+              }
+            }
+          }
+        commit: no
