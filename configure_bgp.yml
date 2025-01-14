@@ -1,7 +1,6 @@
 ---
 - name: Configure BGP for Site 10 using junipernetworks.junos
   hosts: site10
-  connection: local
   gather_facts: no
   become: yes
   vars_prompt:
@@ -48,7 +47,7 @@
           - "}"
         commit: yes  # Ensures that the config is committed after application
       register: bgp_config
-      check_commit: yes  # Check the commit status (optional)
+      check_commit: no  # Check the commit status (optional)
 
     - name: Show the result of the BGP configuration
       debug:
