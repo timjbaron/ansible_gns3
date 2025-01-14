@@ -1,8 +1,7 @@
 ---
-- name: Configure BGP for Site 10-70 using junipernetworks.junos collection
-  hosts: all
-  connection: local
-  gather_facts: no  # Skip facts gathering (no Python required)
+- name: Configure BGP for Site 10 using junipernetworks.junos
+  hosts: site10
+  gather_facts: no
   become: yes
   vars_prompt:
     - name: "ansible_user"
@@ -13,71 +12,43 @@
       private: yes
 
   tasks:
-    # Site 10 - Full Mesh Configuration
     - name: Configure BGP for Site 10
-      when: inventory_hostname == 'site10'
       junipernetworks.junos.junos_config:
-        host: "{{ ansible_host }}"
-        user: "{{ ansible_user }}"
-        passwd: "{{ ansible_ssh_pass }}"
-        port: 22
-        config: |
-          protocols {
-            bgp {
-              group 10.10-cox {
-                type external;
-                local-address 192.168.99.10;
-                neighbor 192.168.99.11 {
-                  peer-as 65011;
-                }
-                neighbor 192.168.99.12 {
-                  peer-as 65012;
-                }
-                neighbor 192.168.99.70 {
-                  peer-as 65070;
-                }
-              }
-              group 10.10-lumen {
-                type external;
-                local-address 192.168.100.10;
-                neighbor 192.168.100.11 {
-                  peer-as 65011;
-                }
-                neighbor 192.168.100.12 {
-                  peer-as 65012;
-                }
-                neighbor 192.168.100.70 {
-                  peer-as 65070;
-                }
-              }
-              group 10.11-cox {
-                type external;
-                local-address 192.168.99.10;
-                neighbor 192.168.99.11 {
-                  peer-as 65011;
-                }
-              }
-              group 10.11-lumen {
-                type external;
-                local-address 192.168.100.10;
-                neighbor 192.168.100.11 {
-                  peer-as 65011;
-                }
-              }
-              group 10.12-cox {
-                type external;
-                local-address 192.168.99.10;
-                neighbor 192.168.99.12 {
-                  peer-as 65012;
-                }
-              }
-              group 10.12-lumen {
-                type external;
-                local-address 192.168.100.10;
-                neighbor 192.168.100.12 {
-                  peer-as 65012;
-                }
-              }
-            }
-          }
-        commit: no
+        lines:
+          - "protocols {"
+          - "  bgp {"
+          - "    group 10.10-cox {"
+          - "      type external;"
+          - "      local-address 192.168.99.10;"
+          - "      neighbor 192.168.99.11 {"
+          - "        peer-as 65011;"
+          - "      }"
+          - "      neighbor 192.168.99.12 {"
+          - "        peer-as 65012;"
+          - "      }"
+          - "      neighbor 192.168.99.70 {"
+          - "        peer-as 65070;"
+          - "      }"
+          - "    }"
+          - "    group 10.10-lumen {"
+          - "      type external;"
+          - "      local-address 192.168.100.10;"
+          - "      neighbor 192.168.100.11 {"
+          - "        peer-as 65011;"
+          - "      }"
+          - "      neighbor 192.168.100.12 {"
+          - "        peer-as 65012;"
+          - "      }"
+          - "      neighbor 192.168.100.70 {"
+          - "        peer-as 65070;"
+          - "      }"
+          - "    }"
+          - "  }"
+          - "}"
+        provider:
+          host: "{{ ansible_host }}"
+          user: "{{ ansible_user }}"
+          passwd: "{{ ansible_ssh_pass }}"
+          port: 22
+        commit: no  # This should be specified here if you want to commit
+
