@@ -20,18 +20,22 @@
     passwd: "{{ ansible_password }}"
   
   tasks:
-    - name: Configure BGP for each site
+    - name: Generate JSON configuration for BGP
+      copy:
+        content: "{{ bgp_config_json }}"
+        dest: /tmp/bgp_config_{{ item.site }}.json
+      loop: "{{ bgp_config }}"
+      loop_control:
+        label: "{{ item.site }}"
+
+    - name: Load JSON configuration on each router
       juniper.device.config:
         host: "{{ inventory_hostname }}"
         user: your-username
         passwd: your-password
-        config:
-          protocols:
-            bgp:
-              group: "{{ item.bgp_groups }}"
-          routing-options:
-            autonomous-system: "{{ item.local_asn }}"
+        src: /tmp/bgp_config_{{ item.site }}.json
         format: json
-        commit: no
+        commit: yes
       loop: "{{ bgp_config }}"
-      when: inventory_hostname in bgp_config | map(attribute='site') | list
+      loop_control:
+        label: "{{ item.site }}"
