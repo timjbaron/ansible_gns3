@@ -35,7 +35,7 @@
         passwd: your-password
         src: /tmp/bgp_config_{{ item.site }}.json
         format: json
-        commit: yes
+        commit: no
       loop: "{{ bgp_config }}"
       loop_control:
         label: "{{ item.site }}"
