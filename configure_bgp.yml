@@ -23,24 +23,15 @@
     - name: Configure BGP for each site
       juniper.device.config:
         host: "{{ inventory_hostname }}"
-        config: |
-          routing-options {
-              autonomous-system {{ item.local_asn }};
-          }
-          protocols {
-              bgp {
-                  {% for group in item.bgp_groups %}
-                  group {{ group.name }} {
-                      type external;
-                      {% for neighbor in group.neighbors %}
-                      neighbor {{ neighbor.ip }} {
-                          peer-as {{ neighbor.asn }};
-                      }
-                      {% endfor %}
-                  }
-                  {% endfor %}
-              }
-          }
-      with_items: "{{ bgp_config }}"
-      loop_control:
-        label: "{{ item.site }}"
+        user: your-username
+        passwd: your-password
+        config:
+          protocols:
+            bgp:
+              group: "{{ item.bgp_groups }}"
+          routing-options:
+            autonomous-system: "{{ item.local_asn }}"
+        format: json
+        commit: no
+      loop: "{{ bgp_config }}"
+      when: inventory_hostname in bgp_config | map(attribute='site') | list
