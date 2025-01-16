@@ -18,7 +18,7 @@
     host: "{{ inventory_hostname }}"
     user: " {{ ansible_user }}"
     passwd: "{{ ansible_password }}"
-
+  
   tasks:
     - name: Configure BGP for each site
       juniper.device.config:
@@ -29,17 +29,18 @@
           }
           protocols {
               bgp {
+                  {% for group in item.bgp_groups %}
                   group {{ group.name }} {
                       type external;
+                      {% for neighbor in group.neighbors %}
                       neighbor {{ neighbor.ip }} {
                           peer-as {{ neighbor.asn }};
                       }
+                      {% endfor %}
                   }
+                  {% endfor %}
               }
           }
       with_items: "{{ bgp_config }}"
       loop_control:
         label: "{{ item.site }}"
-      vars:
-        groups: "{{ item.bgp_groups }}"
-        neighbors: "{{ group.neighbors }}"
