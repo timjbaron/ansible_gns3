@@ -20,19 +20,19 @@
     passwd: "{{ ansible_password }}"
   
   tasks:
-    - name: Generate JSON configuration for BGP
+    - name: Generate XML configuration for BGP
       copy:
-        content: "{{ bgp_config_json }}"
-        dest: /tmp/bgp_config_{{ item.site }}.json
+        content: "{{ bgp_config_xml }}"
+        dest: /tmp/bgp_config_{{ item.site }}.xml
       loop: "{{ bgp_config }}"
       loop_control:
         label: "{{ item.site }}"
 
-    - name: Load JSON configuration on each router
+    - name: Load XML configuration on each router
       juniper.device.config:
         load: "merge"
-        src: /tmp/bgp_config_{{ item.site }}.json
-        format: json
+        src: /tmp/bgp_config_{{ item.site }}.xml
+        format: xml
         commit: no
       loop: "{{ bgp_config }}"
       loop_control:
