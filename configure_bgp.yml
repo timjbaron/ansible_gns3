@@ -19,7 +19,7 @@
     user: " {{ ansible_user }}"
     passwd: "{{ ansible_password }}"
 
-tasks:
+  tasks:
     - name: Configure BGP for each site
       juniper.device.config:
         host: "{{ inventory_hostname }}"
