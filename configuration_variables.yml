@@ -1,20 +1,60 @@
+---
 bgp_config:
   - site: HQ
     local_asn: 65010
+    networks:
+      - 10.10.0.0/16
     bgp_groups:
-      - name: "10.10-cox"
+      - name: 10.10-cox
         neighbors:
-          - ip: "192.168.99.11"
-            peer_as: 65011
-          - ip: "192.168.99.12"
-            peer_as: 65012
-          - ip: "192.168.99.70"
-            peer_as: 65070
-      - name: "10.10-lumen"
+          - { ip: 192.168.99.11, peer_as: 65011 }
+          - { ip: 192.168.99.12, peer_as: 65012 }
+          - { ip: 192.168.99.70, peer_as: 65070 }
+      - name: 10.10-lumen
         neighbors:
-          - ip: "192.168.100.11"
-            peer_as: 65011
-          - ip: "192.168.100.12"
-            peer_as: 65012
-          - ip: "192.168.100.70"
-            peer_as: 65070
+          - { ip: 192.168.100.11, peer_as: 65011 }
+          - { ip: 192.168.100.12, peer_as: 65012 }
+          - { ip: 192.168.100.70, peer_as: 65070 }
+
+  # Add Mesa Rim, Annex and Data Center entries similarly
+
+bgp_config_json: |
+  {
+    "configuration": {
+      "protocols": {
+        "bgp": {
+          "group": [
+            {% for group in item.bgp_groups %}
+            {
+              "name": "{{ group.name }}",
+              "type": "external",
+              "neighbor": [
+                {% for neighbor in group.neighbors %}
+                {
+                  "name": "{{ neighbor.ip }}",
+                  "peer-as": {{ neighbor.peer_as }}
+                }
+                {% if not loop.last %},{% endif %}
+                {% endfor %}
+              ]
+            }
+            {% if not loop.last %},{% endif %}
+            {% endfor %}
+          ]
+        }
+      },
+      "routing-options": {
+        "autonomous-system": {{ item.local_asn }},
+        "static": {
+          "route": [
+            {% for network in item.networks %}
+            {
+              "name": "{{ network }}"
+            }
+            {% if not loop.last %},{% endif %}
+            {% endfor %}
+          ]
+        }
+      }
+    }
+  }
