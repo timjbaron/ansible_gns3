@@ -30,9 +30,7 @@
 
     - name: Load JSON configuration on each router
       juniper.device.config:
-        host: "{{ inventory_hostname }}"
-        user: ansible_user
-        passwd: ansible_password
+        load: "merge"
         src: /tmp/bgp_config_{{ item.site }}.json
         format: json
         commit: no
