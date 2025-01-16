@@ -4,7 +4,7 @@
   connection: local
   gather_facts: no  
   vars_files:
-    - junos.yml
+    - configuration_variables.yml
 
   vars_prompt:
     - name: ansible_user
