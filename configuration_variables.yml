@@ -5,12 +5,12 @@ bgp_config:
     networks:
       - 10.10.0.0/16
     bgp_groups:
-      - name: 10.10-cox
+      - name: 10.10-cox-test
         neighbors:
           - { ip: 192.168.99.11, peer_as: 65011 }
           - { ip: 192.168.99.12, peer_as: 65012 }
           - { ip: 192.168.99.70, peer_as: 65070 }
-      - name: 10.10-lumen
+      - name: 10.10-lumen-test
         neighbors:
           - { ip: 192.168.100.11, peer_as: 65011 }
           - { ip: 192.168.100.12, peer_as: 65012 }
@@ -18,43 +18,31 @@ bgp_config:
 
   # Add Mesa Rim, Annex and Data Center entries similarly
 
-bgp_config_json: |
-  {
-    "configuration": {
-      "protocols": {
-        "bgp": {
-          "group": [
-            {% for group in item.bgp_groups %}
-            {
-              "name": "{{ group.name }}",
-              "type": "external",
-              "neighbor": [
-                {% for neighbor in group.neighbors %}
-                {
-                  "name": "{{ neighbor.ip }}",
-                  "peer-as": {{ neighbor.peer_as }}
-                }
-                {% if not loop.last %},{% endif %}
-                {% endfor %}
-              ]
-            }
-            {% if not loop.last %},{% endif %}
+bgp_config_xml: |
+  <configuration>
+    <protocols>
+      <bgp>
+        {% for group in item.bgp_groups %}
+        <group name="{{ group.name }}">
+          <type>external</type>
+          <neighbor>
+            {% for neighbor in group.neighbors %}
+            <name>{{ neighbor.ip }}</name>
+            <peer-as>{{ neighbor.peer_as }}</peer-as>
             {% endfor %}
-          ]
-        }
-      },
-      "routing-options": {
-        "autonomous-system": {{ item.local_asn }},
-        "static": {
-          "route": [
-            {% for network in item.networks %}
-            {
-              "name": "{{ network }}"
-            }
-            {% if not loop.last %},{% endif %}
-            {% endfor %}
-          ]
-        }
-      }
-    }
-  }
+          </neighbor>
+        </group>
+        {% endfor %}
+      </bgp>
+    </protocols>
+    <routing-options>
+      <autonomous-system>{{ item.local_asn }}</autonomous-system>
+      <static>
+        <route>
+          {% for network in item.networks %}
+          <name>{{ network }}</name>
+          {% endfor %}
+        </route>
+      </static>
+    </routing-options>
+  </configuration>
