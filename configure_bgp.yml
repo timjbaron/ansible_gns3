@@ -20,30 +20,29 @@
     passwd: "{{ ansible_password }}"
   
   tasks:
-    - name: Generate set commands for BGP configuration
+    - name: Generate BGP set commands dynamically from configuration
       set_fact:
-        bgp_set_commands: >-
-          {{
-            [
-              "set routing-options autonomous-system {{ item.local_asn }}",
-              {% for group in item.bgp_groups %}
+        bgp_commands: |
+          [
+            "set routing-options autonomous-system {{ bgp_config.local_asn }}",
+            {% for group in bgp_config.bgp_groups %}
               "set protocols bgp group {{ group.name }} type external",
               {% for neighbor in group.neighbors %}
-              "set protocols bgp group {{ group.name }} neighbor {{ neighbor.ip }} peer-as {{ neighbor.peer_as }}",
+                "set protocols bgp group {{ group.name }} neighbor {{ neighbor.ip }} peer-as {{ neighbor.peer_as }}",
               {% endfor %}
-              {% endfor %}
-              {% for network in item.networks %}
-              "set routing-options static route {{ network }} next-hop discard"
-              {% endfor %}
-            ] | join('\n')
-          }}
-      loop: "{{ bgp_config }}"
-      loop_control:
-        label: "{{ item.site }}"
+            {% endfor %}
+            {% for network in bgp_config.networks %}
+              "set routing-options static route {{ network }} next-hop discard",
+            {% endfor %}
+          ]
+
+    - name: Debug the generated set commands
+      debug:
+        msg: "{{ bgp_commands }}"
 
     - name: Apply set commands to the Juniper device
       juniper.device.config:
-        lines: "{{ bgp_set_commands.split('\n') }}"
+        lines: "{{ bgp_set_commands }}"
         format: set
         commit: no
       loop: "{{ bgp_config }}"
