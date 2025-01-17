@@ -20,22 +20,30 @@
     passwd: "{{ ansible_password }}"
   
   tasks:
-    - name: Configure BGP groups and neighbors using set commands
+    - name: Generate set commands for BGP configuration
+      set_fact:
+        bgp_set_commands: >-
+          {{
+            [
+              "set routing-options autonomous-system {{ item.local_asn }}",
+              {% for group in item.bgp_groups %}
+              "set protocols bgp group {{ group.name }} type external",
+              {% for neighbor in group.neighbors %}
+              "set protocols bgp group {{ group.name }} neighbor {{ neighbor.ip }} peer-as {{ neighbor.peer_as }}",
+              {% endfor %}
+              {% endfor %}
+              {% for network in item.networks %}
+              "set routing-options static route {{ network }} next-hop discard"
+              {% endfor %}
+            ] | join('\n')
+          }}
+      loop: "{{ bgp_config }}"
+      loop_control:
+        label: "{{ item.site }}"
+
+    - name: Apply set commands to the Juniper device
       juniper.device.config:
-        lines:
-          # Set the local ASN
-          - set routing-options autonomous-system {{ item.local_asn }}
-          # Configure each BGP group
-          {% for group in item.bgp_groups %}
-          - set protocols bgp group {{ group.name }} type external
-          {% for neighbor in group.neighbors %}
-          - set protocols bgp group {{ group.name }} neighbor {{ neighbor.ip }} peer-as {{ neighbor.peer_as }}
-          {% endfor %}
-          {% endfor %}
-          # Add static routes
-          {% for network in item.networks %}
-          - set routing-options static route {{ network }} next-hop discard
-          {% endfor %}
+        lines: "{{ bgp_set_commands.split('\n') }}"
         format: set
         commit: no
       loop: "{{ bgp_config }}"
