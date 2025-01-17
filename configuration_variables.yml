@@ -1,48 +1,18 @@
----
 bgp_config:
   - site: HQ
     local_asn: 65010
     networks:
       - 10.10.0.0/16
     bgp_groups:
-      - name: 10.10-cox-test
+      - name: 10.10-cox
         neighbors:
           - { ip: 192.168.99.11, peer_as: 65011 }
           - { ip: 192.168.99.12, peer_as: 65012 }
           - { ip: 192.168.99.70, peer_as: 65070 }
-      - name: 10.10-lumen-test
+      - name: 10.10-lumen
         neighbors:
           - { ip: 192.168.100.11, peer_as: 65011 }
           - { ip: 192.168.100.12, peer_as: 65012 }
           - { ip: 192.168.100.70, peer_as: 65070 }
 
   # Add Mesa Rim, Annex and Data Center entries similarly
-
-bgp_config_xml: |
-  <configuration>
-    <protocols>
-      <bgp>
-        {% for group in item.bgp_groups %}
-        <group name="{{ group.name }}">
-          <type>external</type>
-          <neighbor>
-            {% for neighbor in group.neighbors %}
-            <name>{{ neighbor.ip }}</name>
-            <peer-as>{{ neighbor.peer_as }}</peer-as>
-            {% endfor %}
-          </neighbor>
-        </group>
-        {% endfor %}
-      </bgp>
-    </protocols>
-    <routing-options>
-      <autonomous-system>{{ item.local_asn }}</autonomous-system>
-      <static>
-        <route>
-          {% for network in item.networks %}
-          <name>{{ network }}</name>
-          {% endfor %}
-        </route>
-      </static>
-    </routing-options>
-  </configuration>
