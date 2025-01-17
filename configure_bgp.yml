@@ -20,20 +20,25 @@
     passwd: "{{ ansible_password }}"
   
   tasks:
-    - name: Generate XML configuration for BGP
-      copy:
-        content: "{{ bgp_config_xml }}"
-        dest: /tmp/bgp_config_{{ item.site }}.xml
-      loop: "{{ bgp_config }}"
-      loop_control:
-        label: "{{ item.site }}"
-
-    - name: Load XML configuration on each router
+    - name: Configure BGP groups and neighbors using set commands
       juniper.device.config:
-        load: "merge"
-        src: /tmp/bgp_config_{{ item.site }}.xml
-        format: xml
+        lines:
+          # Set the local ASN
+          - set routing-options autonomous-system {{ item.local_asn }}
+          # Configure each BGP group
+          {% for group in item.bgp_groups %}
+          - set protocols bgp group {{ group.name }} type external
+          {% for neighbor in group.neighbors %}
+          - set protocols bgp group {{ group.name }} neighbor {{ neighbor.ip }} peer-as {{ neighbor.peer_as }}
+          {% endfor %}
+          {% endfor %}
+          # Add static routes
+          {% for network in item.networks %}
+          - set routing-options static route {{ network }} next-hop discard
+          {% endfor %}
+        format: set
         commit: no
       loop: "{{ bgp_config }}"
       loop_control:
         label: "{{ item.site }}"
+
