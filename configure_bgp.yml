@@ -2,7 +2,7 @@
 - name: Configure BGP on Juniper Routers
   hosts: juniper
   connection: local
-  gather_facts: no  
+  gather_facts: no
   vars_files:
     - configuration_variables.yml
 
@@ -13,39 +13,33 @@
     - name: ansible_password
       prompt: "Enter the password"
       private: yes
-  
+
   vars:
     host: "{{ inventory_hostname }}"
-    user: " {{ ansible_user }}"
+    user: "{{ ansible_user }}"
     passwd: "{{ ansible_password }}"
-  
+
   tasks:
-    - name: Generate BGP set commands dynamically from configuration
+    - name: Generate BGP set commands dynamically for each router
       set_fact:
         bgp_commands: |
           [
-            "set routing-options autonomous-system {{ bgp_config.local_asn }}",
-            {% for group in bgp_config.bgp_groups %}
-              "set protocols bgp group {{ group.name }} type external",
-              {% for neighbor in group.neighbors %}
-                "set protocols bgp group {{ group.name }} neighbor {{ neighbor.ip }} peer-as {{ neighbor.peer_as }}",
+            "set routing-options autonomous-system {{ site_config[inventory_hostname].local_asn }}",
+            {% for group_name, group_data in site_config[inventory_hostname].bgp_groups.items() %}
+              {% for neighbor in group_data.neighbors %}
+                "set protocols bgp group {{ group_name }} neighbor 192.168.{{ '99' if group_name == 'cox' else '100' }}.{{ neighbor.ip_suffix }} peer-as {{ neighbor.asn }}",
               {% endfor %}
-            {% endfor %}
-            {% for network in bgp_config.networks %}
-              "set routing-options static route {{ network }} next-hop discard",
             {% endfor %}
           ]
 
-    - name: Debug the generated set commands
+    - name: Debug the generated BGP set commands
       debug:
         msg: "{{ bgp_commands }}"
 
-    - name: Apply set commands to the Juniper device
+    - name: Apply BGP set commands to the Juniper device
       juniper.device.config:
-        lines: "{{ bgp_set_commands }}"
+        lines: "{{ bgp_commands }}"
         format: set
+        load: merge
         commit: no
-      loop: "{{ bgp_config }}"
-      loop_control:
-        label: "{{ item.site }}"
-
+        config_mode: dynamic
