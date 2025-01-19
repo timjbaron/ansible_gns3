@@ -20,12 +20,16 @@
     passwd: "{{ ansible_password }}"
 
   tasks:
+    - name: Map inventory_hostname to site name
+      set_fact:
+        site_name: "{{ ip_to_site_map[inventory_hostname] }}"
+
     - name: Generate BGP set commands dynamically for each router
       set_fact:
         bgp_commands: |
           [
-            "set routing-options autonomous-system {{ site_config[inventory_hostname].local_asn }}",
-            {% for group_name, group_data in site_config[inventory_hostname].bgp_groups.items() %}
+            "set routing-options autonomous-system {{ site_config[site_name].local_asn }}",
+            {% for group_name, group_data in site_config[site_name].bgp_groups.items() %}
               {% for neighbor in group_data.neighbors %}
                 "set protocols bgp group {{ group_name }} neighbor 192.168.{{ '99' if group_name == 'cox' else '100' }}.{{ neighbor.ip_suffix }} peer-as {{ neighbor.asn }}",
               {% endfor %}
