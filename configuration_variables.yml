@@ -1,18 +1,86 @@
-bgp_config:
-  - site: HQ
+site_config:
+  HQ:
     local_asn: 65010
-    networks:
-      - 10.10.0.0/16
     bgp_groups:
-      - name: 10.10-cox
+      cox:
         neighbors:
-          - { ip: 192.168.99.11, peer_as: 65011 }
-          - { ip: 192.168.99.12, peer_as: 65012 }
-          - { ip: 192.168.99.70, peer_as: 65070 }
-      - name: 10.10-lumen
+          - ip_suffix: 11
+            asn: 65011
+          - ip_suffix: 12
+            asn: 65012
+          - ip_suffix: 70
+            asn: 65070
+      lumen:
         neighbors:
-          - { ip: 192.168.100.11, peer_as: 65011 }
-          - { ip: 192.168.100.12, peer_as: 65012 }
-          - { ip: 192.168.100.70, peer_as: 65070 }
+          - ip_suffix: 11
+            asn: 65011
+          - ip_suffix: 12
+            asn: 65012
+          - ip_suffix: 70
+            asn: 65070
 
-  # Add Mesa Rim, Annex and Data Center entries similarly
+  Mesa_Rim:
+    local_asn: 65011
+    bgp_groups:
+      cox:
+        neighbors:
+          - ip_suffix: 10
+            asn: 65010
+          - ip_suffix: 12
+            asn: 65012
+          - ip_suffix: 70
+            asn: 65070
+      lumen:
+        neighbors:
+          - ip_suffix: 10
+            asn: 65010
+          - ip_suffix: 12
+            asn: 65012
+          - ip_suffix: 70
+            asn: 65070
+
+  Annex:
+    local_asn: 65012
+    bgp_groups:
+      cox:
+        neighbors:
+          - ip_suffix: 10
+            asn: 65010
+          - ip_suffix: 11
+            asn: 65011
+          - ip_suffix: 70
+            asn: 65070
+      lumen:
+        neighbors:
+          - ip_suffix: 10
+            asn: 65010
+          - ip_suffix: 11
+            asn: 65011
+          - ip_suffix: 70
+            asn: 65070
+
+  Data_Center:
+    local_asn: 65070
+    bgp_groups:
+      cox:
+        neighbors:
+          - ip_suffix: 10
+            asn: 65010
+          - ip_suffix: 11
+            asn: 65011
+          - ip_suffix: 12
+            asn: 65012
+      lumen:
+        neighbors:
+          - ip_suffix: 10
+            asn: 65010
+          - ip_suffix: 11
+            asn: 65011
+          - ip_suffix: 12
+            asn: 65012
+
+ip_to_site_map:
+  192.168.99.10: HQ
+  192.168.99.11: Mesa_Rim
+  192.168.99.12: Annex
+  192.168.99.70: Data_Center
