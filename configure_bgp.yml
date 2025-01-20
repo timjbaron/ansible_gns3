@@ -4,7 +4,7 @@
   connection: local
   gather_facts: no
   vars_files:
-    - configuration_variables.yml
+    - variables.yml
 
   vars_prompt:
     - name: ansible_user
